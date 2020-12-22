@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="jQuery.js"></script>
+    <style>
+        *{
+            margin: 0;
+            padding:0;
+        }
+        #wrap{
+            position: absolute;
+            top: 200px;
+            left: 100px;
+        }
+        .small{
+            width: 350px;
+            height: 350px;
+            position: relative;
+        }
+        .small img{
+            border: 1px solid #ccc;
+            width: 100%;
+            height: 100%;
+        }
+        #mask{
+            position: absolute;
+            left:0;
+            top:0;
+            width: 100px;
+            height: 100px;
+            background-color: rgba(239,227,37,0.4);
+            cursor: move;
+            display: none;
+        }
+        .big{
+            position: absolute;
+            left: 360px;
+            top:0;
+            width: 500px;
+            height: 500px;
+            border: 1px solid #ccc;
+            overflow: hidden;/*超出部分隐藏*/
+            display: none;
+        }
+        .big img{
+            position: relative;
+            left: 0;
+            top:0;
+        }
+    </style>
+</head>
+<body>
+    <div id="wrap">
+        <div class="small">
+            <img src="img/001.jpg" alt="">
+            <div id="mask"></div>
+        </div>
+        <div class="big">
+            <img src="img/0001.jpg" alt="">
+        </div>
+    </div>
+<script>
+    function getLeftsAndTops(e) {
+        var dx = e.pageX - $('.small').offset().left;
+        var dy = e.pageY - $('.small').offset().top;
+
+        var lefts = dx - $('#mask').outerWidth()/2;
+        var tops = dy - $('#mask').outerHeight()/2;
+
+        var maxLefts = $('.small').innerWidth()-$('#mask').outerWidth();
+        var maxTops = $('.small').innerHeight()-$('#mask').outerHeight();
+
+        if(lefts<=0){lefts=0}
+        if(lefts>=maxLefts){lefts = maxLefts}
+        if(tops<=0){tops=0}
+        if(tops>=maxTops){tops=maxTops}
+
+        return[lefts,tops]
+    }
+    /*实现拖拽*/
+    $(function () {
+        $('.small').hover(function (e) {
+            $('#mask').css("display","block");
+            $('.big').css("display","block");
+            var arr = getLeftsAndTops(e);
+            $('#mask').css({left:arr[0]+'px',top:arr[1]+'px'});
+            $('#mask').mousemove(function (ev) {
+                var arr = getLeftsAndTops(ev);
+                $('#mask').css({left:arr[0]+'px',top:arr[1]+'px'});
+
+                var radioX = ($('.big img').width() - $('.big').width())/($('.small img').width()-$('#mask').width());
+                var radioY = ($('.big img').height() - $('.big').height())/($('.small img').height()-$('#mask').height());
+
+                /*计算遮罩物走的距离*/
+                var maskLeftPos = $('#mask').position().left;
+                var maskTopPos = $('#mask').position().top;
+
+                /*大图片要走的距离*/
+                var bigImgLeftPos = -(maskLeftPos*radioX);
+                var bigImgTopPos = -(maskTopPos*radioY);
+
+                $('.big img').css({left:bigImgLeftPos+'px',top:bigImgTopPos+'px'})
+            })
+        },function () {
+            $('#mask').css("display","none");
+            $('.big').css("display","none");
+        })
+    })
+</script>
+</body>
+</html>
